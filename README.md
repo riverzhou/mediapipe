@@ -1,5 +1,5 @@
 
-Mediapipe v0.10.0 @ Ubuntu 22.04 (22.04c):
+Mediapipe v0.10.0 GPU Version with CUDA @ Ubuntu 22.04 (22.04c):
 
 ```bash
 
