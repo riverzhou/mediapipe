@@ -12,9 +12,21 @@ graph_options: {
   [type.googleapis.com/mediapipe.FaceDetectionOptions] {}
 }
 
+node: {
+calculator: "ColorConvertCalculator"
+input_stream: "RGB_IN:image"
+output_stream: "RGBA_OUT:image_rgba"
+}
+
+node: {
+calculator: "ImageFrameToGpuBufferCalculator"
+input_stream: "image_rgba"
+output_stream: "image_gpu"
+}
+
 node {
   calculator: "FaceDetectionShortRange"
-  input_stream: "IMAGE:image"
+  input_stream: "IMAGE:image_gpu"
   output_stream: "DETECTIONS:detections"
   node_options: {
     [type.googleapis.com/mediapipe.FaceDetectionOptions] {

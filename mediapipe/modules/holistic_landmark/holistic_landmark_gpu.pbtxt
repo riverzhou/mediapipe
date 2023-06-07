@@ -99,9 +99,22 @@ output_stream: "SEGMENTATION_MASK:segmentation_mask"
 output_stream: "POSE_ROI:pose_landmarks_roi"
 output_stream: "POSE_DETECTION:pose_detection"
 
+node: {
+calculator: "ColorConvertCalculator"
+input_stream: "RGB_IN:image"
+output_stream: "RGBA_OUT:image_rgba"
+}
+
+node: {
+calculator: "ImageFrameToGpuBufferCalculator"
+input_stream: "image_rgba"
+output_stream: "image_gpu"
+}
+
 # Predicts pose landmarks.
 node {
   calculator: "PoseLandmarkGpu"
+  #input_stream: "IMAGE:image_gpu"
   input_stream: "IMAGE:image"
   input_side_packet: "MODEL_COMPLEXITY:model_complexity"
   input_side_packet: "SMOOTH_LANDMARKS:smooth_landmarks"
@@ -118,7 +131,7 @@ node {
 # Predicts left and right hand landmarks based on the initial pose landmarks.
 node {
   calculator: "HandLandmarksLeftAndRightGpu"
-  input_stream: "IMAGE:image"
+  input_stream: "IMAGE:image_gpu"
   input_stream: "POSE_LANDMARKS:pose_landmarks"
   output_stream: "LEFT_HAND_LANDMARKS:left_hand_landmarks"
   output_stream: "RIGHT_HAND_LANDMARKS:right_hand_landmarks"
@@ -139,7 +152,7 @@ node {
 # Predicts face landmarks based on the initial pose landmarks.
 node {
   calculator: "FaceLandmarksFromPoseGpu"
-  input_stream: "IMAGE:image"
+  input_stream: "IMAGE:image_gpu"
   input_stream: "FACE_LANDMARKS_FROM_POSE:face_landmarks_from_pose"
   input_side_packet: "REFINE_LANDMARKS:refine_face_landmarks"
   output_stream: "FACE_LANDMARKS:face_landmarks"

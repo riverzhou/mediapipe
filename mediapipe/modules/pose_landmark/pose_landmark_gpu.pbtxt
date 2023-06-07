@@ -137,10 +137,22 @@ node: {
   output_stream: "PRESENCE:prev_pose_rect_from_landmarks_is_present"
 }
 
+node: {
+calculator: "ColorConvertCalculator"
+input_stream: "RGB_IN:image"
+output_stream: "RGBA_OUT:image_rgba"
+}
+
+node: {
+calculator: "ImageFrameToGpuBufferCalculator"
+input_stream: "image_rgba"
+output_stream: "image_gpu"
+}
+
 # Calculates size of the image.
 node {
   calculator: "ImagePropertiesCalculator"
-  input_stream: "IMAGE_GPU:image"
+  input_stream: "IMAGE_GPU:image_gpu"
   output_stream: "SIZE:image_size"
 }
 
@@ -149,7 +161,7 @@ node {
 # round of pose detection.
 node {
   calculator: "GateCalculator"
-  input_stream: "image"
+  input_stream: "image_gpu"
   input_stream: "image_size"
   input_stream: "DISALLOW:prev_pose_rect_from_landmarks_is_present"
   output_stream: "image_for_pose_detection"
@@ -205,7 +217,7 @@ node {
   calculator: "PoseLandmarkByRoiGpu"
   input_side_packet: "MODEL_COMPLEXITY:model_complexity"
   input_side_packet: "ENABLE_SEGMENTATION:enable_segmentation"
-  input_stream: "IMAGE:image"
+  input_stream: "IMAGE:image_gpu"
   input_stream: "ROI:pose_rect"
   output_stream: "LANDMARKS:unfiltered_pose_landmarks"
   output_stream: "AUXILIARY_LANDMARKS:unfiltered_auxiliary_landmarks"
@@ -242,7 +254,7 @@ node {
 # timestamp bound update occurs to jump start the feedback loop.
 node {
   calculator: "PreviousLoopbackCalculator"
-  input_stream: "MAIN:image"
+  input_stream: "MAIN:image_gpu"
   input_stream: "LOOP:pose_rect_from_landmarks"
   input_stream_info: {
     tag_index: "LOOP"
@@ -264,5 +276,5 @@ node {
 node: {
   calculator: "FromImageCalculator"
   input_stream: "IMAGE:filtered_segmentation_mask"
-  output_stream: "IMAGE_GPU:segmentation_mask"
+  output_stream: "IMAGE_CPU:segmentation_mask"
 }

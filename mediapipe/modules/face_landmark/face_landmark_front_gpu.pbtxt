@@ -83,14 +83,38 @@ node {
   output_stream: "prev_has_enough_faces"
 }
 
+node: {
+calculator: "ColorConvertCalculator"
+input_stream: "RGB_IN:image"
+output_stream: "RGBA_OUT:image_rgba"
+}
+
+node: {
+calculator: "ImageFrameToGpuBufferCalculator"
+input_stream: "image_rgba"
+output_stream: "image_gpu"
+}
+
 # Drops the incoming image if enough faces have already been identified from the
 # previous image. Otherwise, passes the incoming image through to trigger a new
 # round of face detection.
 node {
   calculator: "GateCalculator"
+  input_stream: "image_gpu"
+  input_stream: "DISALLOW:prev_has_enough_faces"
+  output_stream: "gated_image_gpu"
+  options: {
+    [mediapipe.GateCalculatorOptions.ext] {
+      empty_packets_as_allow: true
+    }
+  }
+}
+
+node {
+  calculator: "GateCalculator"
   input_stream: "image"
   input_stream: "DISALLOW:prev_has_enough_faces"
-  output_stream: "gated_image"
+  output_stream: "gated_image_cpu"
   options: {
     [mediapipe.GateCalculatorOptions.ext] {
       empty_packets_as_allow: true
@@ -101,7 +125,7 @@ node {
 # Detects faces.
 node {
   calculator: "FaceDetectionShortRangeGpu"
-  input_stream: "IMAGE:gated_image"
+  input_stream: "IMAGE:gated_image_cpu"
   output_stream: "DETECTIONS:all_face_detections"
 }
 
@@ -116,7 +140,7 @@ node {
 # Calculate size of the image.
 node {
   calculator: "ImagePropertiesCalculator"
-  input_stream: "IMAGE_GPU:gated_image"
+  input_stream: "IMAGE_GPU:gated_image_gpu"
   output_stream: "SIZE:gated_image_size"
 }
 
@@ -172,7 +196,7 @@ node {
 # Calculate size of the image.
 node {
   calculator: "ImagePropertiesCalculator"
-  input_stream: "IMAGE_GPU:image"
+  input_stream: "IMAGE_GPU:image_gpu"
   output_stream: "SIZE:image_size"
 }
 
@@ -184,7 +208,7 @@ node {
 node {
   calculator: "BeginLoopNormalizedRectCalculator"
   input_stream: "ITERABLE:face_rects"
-  input_stream: "CLONE:0:image"
+  input_stream: "CLONE:0:image_gpu"
   input_stream: "CLONE:1:image_size"
   output_stream: "ITEM:face_rect"
   output_stream: "CLONE:0:landmarks_loop_image"
@@ -237,7 +261,7 @@ node {
 # timestamp bound update occurs to jump start the feedback loop.
 node {
   calculator: "PreviousLoopbackCalculator"
-  input_stream: "MAIN:image"
+  input_stream: "MAIN:image_gpu"
   input_stream: "LOOP:face_rects_from_landmarks"
   input_stream_info: {
     tag_index: "LOOP"

@@ -30,11 +30,23 @@ input_side_packet: "MODEL_SELECTION:model_selection"
 # Segmentation mask. (GpuBuffer in RGBA, with the same mask values in R and A)
 output_stream: "SEGMENTATION_MASK:segmentation_mask"
 
+node: {
+calculator: "ColorConvertCalculator"
+input_stream: "RGB_IN:image"
+output_stream: "RGBA_OUT:image_rgba"
+}
+
+node: {
+calculator: "ImageFrameToGpuBufferCalculator"
+input_stream: "image_rgba"
+output_stream: "image_gpu"
+}
+
 # Resizes the input image into a tensor with a dimension desired by the model.
 node {
   calculator: "SwitchContainer"
   input_side_packet: "SELECT:model_selection"
-  input_stream: "IMAGE_GPU:image"
+  input_stream: "IMAGE_GPU:image_gpu"
   output_stream: "TENSORS:input_tensors"
   options: {
     [mediapipe.SwitchContainerOptions.ext] {
@@ -106,7 +118,7 @@ node {
 # Retrieves the size of the input image.
 node {
   calculator: "ImagePropertiesCalculator"
-  input_stream: "IMAGE_GPU:image"
+  input_stream: "IMAGE_GPU:image_gpu"
   output_stream: "SIZE:input_size"
 }
 
@@ -129,5 +141,5 @@ node {
 node: {
   calculator: "FromImageCalculator"
   input_stream: "IMAGE:mask_image"
-  output_stream: "IMAGE_GPU:segmentation_mask"
+  output_stream: "IMAGE_CPU:segmentation_mask"
 }
