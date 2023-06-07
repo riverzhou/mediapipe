@@ -54,7 +54,7 @@ from mediapipe.python.solutions.face_mesh_connections import FACEMESH_TESSELATIO
 
 FACEMESH_NUM_LANDMARKS = 468
 FACEMESH_NUM_LANDMARKS_WITH_IRISES = 478
-_BINARYPB_FILE_PATH = 'mediapipe/modules/face_landmark/face_landmark_front_cpu.binarypb'
+_BINARYPB_FILE_PATH = 'mediapipe/modules/face_landmark/face_landmark_front_gpu.binarypb'
 
 
 class FaceMesh(SolutionBase):
@@ -100,9 +100,9 @@ class FaceMesh(SolutionBase):
             'use_prev_landmarks': not static_image_mode,
         },
         calculator_params={
-            'facedetectionshortrangecpu__facedetectionshortrange__facedetection__TensorsToDetectionsCalculator.min_score_thresh':
+            'facedetectionshortrangegpu__facedetectionshortrange__facedetection__TensorsToDetectionsCalculator.min_score_thresh':
                 min_detection_confidence,
-            'facelandmarkcpu__ThresholdingCalculator.threshold':
+            'facelandmarkgpu__ThresholdingCalculator.threshold':
                 min_tracking_confidence,
         },
         outputs=['multi_face_landmarks'])

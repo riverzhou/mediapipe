@@ -67,7 +67,7 @@ class HandLandmark(enum.IntEnum):
   PINKY_TIP = 20
 
 
-_BINARYPB_FILE_PATH = 'mediapipe/modules/hand_landmark/hand_landmark_tracking_cpu.binarypb'
+_BINARYPB_FILE_PATH = 'mediapipe/modules/hand_landmark/hand_landmark_tracking_gpu.binarypb'
 
 
 class Hands(SolutionBase):
@@ -119,9 +119,9 @@ class Hands(SolutionBase):
             'use_prev_landmarks': not static_image_mode,
         },
         calculator_params={
-            'palmdetectioncpu__TensorsToDetectionsCalculator.min_score_thresh':
+            'palmdetectiongpu__TensorsToDetectionsCalculator.min_score_thresh':
                 min_detection_confidence,
-            'handlandmarkcpu__ThresholdingCalculator.threshold':
+            'handlandmarkgpu__ThresholdingCalculator.threshold':
                 min_tracking_confidence,
         },
         outputs=[

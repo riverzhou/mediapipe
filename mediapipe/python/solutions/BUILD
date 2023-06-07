@@ -25,7 +25,7 @@ py_library(
     data = [
         "//mediapipe/modules/hand_landmark:hand_landmark_full.tflite",
         "//mediapipe/modules/hand_landmark:hand_landmark_lite.tflite",
-        "//mediapipe/modules/hand_landmark:hand_landmark_tracking_cpu_graph",
+        "//mediapipe/modules/hand_landmark:hand_landmark_tracking_gpu_graph",
         "//mediapipe/modules/hand_landmark:handedness.txt",
         "//mediapipe/modules/palm_detection:palm_detection_full.tflite",
         "//mediapipe/modules/palm_detection:palm_detection_lite.tflite",

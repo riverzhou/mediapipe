@@ -22,8 +22,8 @@ from mediapipe.framework.formats import location_data_pb2
 from mediapipe.modules.face_detection import face_detection_pb2
 from mediapipe.python.solution_base import SolutionBase
 
-_SHORT_RANGE_GRAPH_FILE_PATH = 'mediapipe/modules/face_detection/face_detection_short_range_cpu.binarypb'
-_FULL_RANGE_GRAPH_FILE_PATH = 'mediapipe/modules/face_detection/face_detection_full_range_cpu.binarypb'
+_SHORT_RANGE_GRAPH_FILE_PATH = 'mediapipe/modules/face_detection/face_detection_short_range_gpu.binarypb'
+_FULL_RANGE_GRAPH_FILE_PATH = 'mediapipe/modules/face_detection/face_detection_full_range_gpu.binarypb'
 
 
 def get_key_point(

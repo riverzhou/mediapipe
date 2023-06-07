@@ -29,7 +29,7 @@ from mediapipe.framework.tool import switch_container_pb2
 
 from mediapipe.python.solution_base import SolutionBase
 
-_BINARYPB_FILE_PATH = 'mediapipe/modules/selfie_segmentation/selfie_segmentation_cpu.binarypb'
+_BINARYPB_FILE_PATH = 'mediapipe/modules/selfie_segmentation/selfie_segmentation_gpu.binarypb'
 
 
 class SelfieSegmentation(SolutionBase):

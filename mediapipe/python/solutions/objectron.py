@@ -75,7 +75,7 @@ class BoxLandmark(enum.IntEnum):
   BACK_TOP_RIGHT = 7
   FRONT_TOP_RIGHT = 8
 
-_BINARYPB_FILE_PATH = 'mediapipe/modules/objectron/objectron_cpu.binarypb'
+_BINARYPB_FILE_PATH = 'mediapipe/modules/objectron/objectron_gpu.binarypb'
 BOX_CONNECTIONS = frozenset([
     (BoxLandmark.BACK_BOTTOM_LEFT, BoxLandmark.FRONT_BOTTOM_LEFT),
     (BoxLandmark.BACK_BOTTOM_LEFT, BoxLandmark.BACK_TOP_LEFT),

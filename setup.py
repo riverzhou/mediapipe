@@ -29,7 +29,7 @@ from setuptools.command import build_ext
 from setuptools.command import build_py
 from setuptools.command import install
 
-__version__ = 'dev'
+__version__ = '0.10.0'
 IS_WINDOWS = (platform.system() == 'Windows')
 IS_MAC = (platform.system() == 'Darwin')
 MP_ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
@@ -106,8 +106,7 @@ def _modify_opencv_cmake_rule(link_opencv):
   # the OpenCV library through "@windows_opencv//:opencv".
   if not link_opencv and not IS_WINDOWS:
     content = open(MP_THIRD_PARTY_BUILD,
-                   'r').read().replace('OPENCV_SHARED_LIBS = True',
-                                       'OPENCV_SHARED_LIBS = False')
+                   'r').read()
     shutil.move(MP_THIRD_PARTY_BUILD, _get_backup_file(MP_THIRD_PARTY_BUILD))
     build_file = open(MP_THIRD_PARTY_BUILD, 'w')
     build_file.write(content)
@@ -201,6 +200,7 @@ class GeneratePyProtos(build_ext.build_ext):
       sys.stderr.write('generating proto file: %s\n' % output)
       protoc_command = [
           self._protoc, '-I.',
+          '--experimental_allow_proto3_optional',
           '--python_out=' + os.path.abspath(self.build_lib), source
       ]
       if subprocess.call(protoc_command) != 0:
@@ -246,13 +246,13 @@ class BuildModules(build_ext.build_ext):
       self._download_external_file(external_file)
 
     binary_graphs = [
-        'face_detection/face_detection_short_range_cpu',
-        'face_detection/face_detection_full_range_cpu',
-        'face_landmark/face_landmark_front_cpu',
-        'hand_landmark/hand_landmark_tracking_cpu',
-        'holistic_landmark/holistic_landmark_cpu', 'objectron/objectron_cpu',
-        'pose_landmark/pose_landmark_cpu',
-        'selfie_segmentation/selfie_segmentation_cpu'
+        'face_detection/face_detection_short_range_gpu',
+        'face_detection/face_detection_full_range_gpu',
+        'face_landmark/face_landmark_front_gpu',
+        'hand_landmark/hand_landmark_tracking_gpu',
+        'holistic_landmark/holistic_landmark_gpu', 'objectron/objectron_gpu',
+        'pose_landmark/pose_landmark_gpu',
+        'selfie_segmentation/selfie_segmentation_gpu'
     ]
     for elem in binary_graphs:
       binary_graph = os.path.join('mediapipe/modules/', elem)
@@ -279,7 +279,13 @@ class BuildModules(build_ext.build_ext):
         'build',
         '--compilation_mode=opt',
         '--copt=-DNDEBUG',
-        '--define=MEDIAPIPE_DISABLE_GPU=1',
+        '--config=cuda',
+        '--spawn_strategy=local',
+        '--define=no_gcp_support=true',
+        '--define=no_aws_support=true',
+        '--define=no_nccl_support=true',
+        '--copt=-DMESA_EGL_NO_X11_HEADERS',
+        '--copt=-DEGL_NO_X11',
         '--action_env=PYTHON_BIN_PATH=' + _normalize_path(sys.executable),
         binary_graph_target,
     ]
@@ -304,7 +310,13 @@ class GenerateMetadataSchema(build_ext.build_ext):
           'bazel',
           'build',
           '--compilation_mode=opt',
-          '--define=MEDIAPIPE_DISABLE_GPU=1',
+          '--config=cuda',
+          '--spawn_strategy=local',
+          '--define=no_gcp_support=true',
+          '--define=no_aws_support=true',
+          '--define=no_nccl_support=true',
+          '--copt=-DMESA_EGL_NO_X11_HEADERS',
+          '--copt=-DEGL_NO_X11',
           '--action_env=PYTHON_BIN_PATH=' + _normalize_path(sys.executable),
           '//mediapipe/tasks/metadata:' + target,
       ]
@@ -390,7 +402,13 @@ class BuildExtension(build_ext.build_ext):
         'build',
         '--compilation_mode=opt',
         '--copt=-DNDEBUG',
-        '--define=MEDIAPIPE_DISABLE_GPU=1',
+        '--config=cuda',
+        '--spawn_strategy=local',
+        '--define=no_gcp_support=true',
+        '--define=no_aws_support=true',
+        '--define=no_nccl_support=true',
+        '--copt=-DMESA_EGL_NO_X11_HEADERS',
+        '--copt=-DEGL_NO_X11',
         '--action_env=PYTHON_BIN_PATH=' + _normalize_path(sys.executable),
         str(ext.bazel_target + '.so'),
     ]
