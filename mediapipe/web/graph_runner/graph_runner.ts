@@ -59,6 +59,14 @@ export declare interface WasmModule {
   HEAPU32: Uint32Array;
   HEAPF32: Float32Array;
   HEAPF64: Float64Array;
+  FS_createDataFile:
+      (parent: string, name: string, data: Uint8Array, canRead: boolean,
+       canWrite: boolean, canOwn: boolean) => void;
+  FS_createPath:
+      (parent: string, name: string, canRead: boolean,
+       canWrite: boolean) => void;
+  FS_unlink(path: string): void;
+
   errorListener?: ErrorListener;
   _bindTextureToCanvas: () => boolean;
   _changeBinaryGraph: (size: number, dataPtr: number) => void;
@@ -709,8 +717,8 @@ export class GraphRunner {
    *     given timestamp, to be parsed into the specified protobuffer type.
    * @param data The binary (serialized) raw protobuffer data.
    * @param protoType The C++ namespaced type this protobuffer data corresponds
-   *     to. It will be converted to this type when output as a packet into the
-   *     graph.
+   *     to (e.g. "foo.Bar"). It will be converted to this type when output as a
+   *     packet into the graph.
    * @param streamName The name of the graph input stream to send data into.
    * @param timestamp The timestamp of the input data, in ms.
    */

@@ -16,6 +16,9 @@
 
 import {assertNotNull, MPImageShaderContext} from '../../../../tasks/web/vision/core/image_shader_context';
 
+/** Number of instances a user can keep alive before we raise a warning. */
+const INSTANCE_COUNT_WARNING_THRESHOLD = 250;
+
 /** The underlying type of the image. */
 enum MPImageType {
   /** Represents the native `ImageData` type. */
@@ -52,6 +55,12 @@ export type MPImageContainer = ImageData|ImageBitmap|WebGLTexture;
 export class MPImage {
   private gl?: WebGL2RenderingContext;
 
+  /**
+   * A counter to track the number of instances of MPImage that own resources..
+   * This is used to raise a warning if the user does not close the instances.
+   */
+  private static instancesBeforeWarning = INSTANCE_COUNT_WARNING_THRESHOLD;
+
   /** @hideconstructor */
   constructor(
       private readonly containers: MPImageContainer[],
@@ -64,7 +73,16 @@ export class MPImage {
       readonly width: number,
       /** Returns the height of the image. */
       readonly height: number,
-  ) {}
+  ) {
+    if (this.ownsImageBitmap || this.ownsWebGLTexture) {
+      --MPImage.instancesBeforeWarning;
+      if (MPImage.instancesBeforeWarning === 0) {
+        console.error(
+            'You seem to be creating MPImage instances without invoking ' +
+            '.close(). This leaks resources.');
+      }
+    }
+  }
 
   /** Returns whether this `MPImage` contains a mask of type `ImageData`. */
   hasImageData(): boolean {
@@ -169,10 +187,11 @@ export class MPImage {
         destinationContainer =
             assertNotNull(gl.createTexture(), 'Failed to create texture');
         gl.bindTexture(gl.TEXTURE_2D, destinationContainer);
-
+        this.configureTextureParams();
         gl.texImage2D(
             gl.TEXTURE_2D, 0, gl.RGBA, this.width, this.height, 0, gl.RGBA,
             gl.UNSIGNED_BYTE, null);
+        gl.bindTexture(gl.TEXTURE_2D, null);
 
         shaderContext.bindFramebuffer(gl, destinationContainer);
         shaderContext.run(gl, /* flipVertically= */ false, () => {
@@ -284,6 +303,20 @@ export class MPImage {
     return webGLTexture;
   }
 
+  /** Sets texture params for the currently bound texture. */
+  private configureTextureParams() {
+    const gl = this.getGL();
+    // `gl.LINEAR` might break rendering for some textures, but it allows us to
+    // do smooth resizing. Ideally, this would be user-configurable, but for now
+    // we hard-code the value here to `gl.LINEAR` (versus `gl.NEAREST` for
+    // `MPMask` where we do not want to interpolate mask values, especially for
+    // category masks).
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  }
+
   /**
    * Binds the backing texture to the canvas. If the texture does not yet
    * exist, creates it first.
@@ -300,16 +333,12 @@ export class MPImage {
           assertNotNull(gl.createTexture(), 'Failed to create texture');
       this.containers.push(webGLTexture);
       this.ownsWebGLTexture = true;
+
+      gl.bindTexture(gl.TEXTURE_2D, webGLTexture);
+      this.configureTextureParams();
+    } else {
+      gl.bindTexture(gl.TEXTURE_2D, webGLTexture);
     }
-
-    gl.bindTexture(gl.TEXTURE_2D, webGLTexture);
-    // TODO: Ideally, we would only set these once per texture and
-    // not once every frame.
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-
     return webGLTexture;
   }
 
@@ -391,6 +420,9 @@ export class MPImage {
       const gl = this.getGL();
       gl.deleteTexture(this.getContainer(MPImageType.WEBGL_TEXTURE)!);
     }
+
+    // User called close(). We no longer issue warning.
+    MPImage.instancesBeforeWarning = -1;
   }
 }
 

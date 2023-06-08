@@ -16,7 +16,7 @@
 
 #import "mediapipe/tasks/ios/core/sources/MPPTaskOptions.h"
 #import "mediapipe/tasks/ios/vision/core/sources/MPPRunningMode.h"
-#import "mediapipe/tasks/ios/vision/object_detector/sources/MPPObjectDetectionResult.h"
+#import "mediapipe/tasks/ios/vision/object_detector/sources/MPPObjectDetectorResult.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -44,7 +44,7 @@ NS_SWIFT_NAME(ObjectDetectorLiveStreamDelegate)
  *
  * @param objectDetector The object detector which performed the object detection.
  * This is useful to test equality when there are multiple instances of `MPPObjectDetector`.
- * @param result The `MPPObjectDetectionResult` object that contains a list of detections, each
+ * @param result The `MPPObjectDetectorResult` object that contains a list of detections, each
  * detection has a bounding box that is expressed in the unrotated input frame of reference
  * coordinates system, i.e. in `[0,image_width) x [0,image_height)`, which are the dimensions of the
  * underlying image data.
@@ -52,10 +52,9 @@ NS_SWIFT_NAME(ObjectDetectorLiveStreamDelegate)
  * image was sent to the object detector.
  * @param error An optional error parameter populated when there is an error in performing object
  * detection on the input live stream image data.
- *
  */
 - (void)objectDetector:(MPPObjectDetector *)objectDetector
-    didFinishDetectionWithResult:(nullable MPPObjectDetectionResult *)result
+    didFinishDetectionWithResult:(nullable MPPObjectDetectorResult *)result
          timestampInMilliseconds:(NSInteger)timestampInMilliseconds
                            error:(nullable NSError *)error
     NS_SWIFT_NAME(objectDetector(_:didFinishDetection:timestampInMilliseconds:error:));
@@ -67,7 +66,7 @@ NS_SWIFT_NAME(ObjectDetectorOptions)
 
 /**
  * Running mode of the object detector task. Defaults to `MPPRunningModeImage`.
- * `MPPImageClassifier` can be created with one of the following running modes:
+ * `MPPObjectDetector` can be created with one of the following running modes:
  *  1. `MPPRunningModeImage`: The mode for performing object detection on single image inputs.
  *  2. `MPPRunningModeVideo`: The mode for performing object detection on the decoded frames of a
  *      video.

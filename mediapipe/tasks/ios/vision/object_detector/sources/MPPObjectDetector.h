@@ -15,8 +15,8 @@
 #import <Foundation/Foundation.h>
 
 #import "mediapipe/tasks/ios/vision/core/sources/MPPImage.h"
-#import "mediapipe/tasks/ios/vision/object_detector/sources/MPPObjectDetectionResult.h"
 #import "mediapipe/tasks/ios/vision/object_detector/sources/MPPObjectDetectorOptions.h"
+#import "mediapipe/tasks/ios/vision/object_detector/sources/MPPObjectDetectorResult.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -80,7 +80,7 @@ NS_SWIFT_NAME(ObjectDetector)
  * Creates a new instance of `MPPObjectDetector` from the given `MPPObjectDetectorOptions`.
  *
  * @param options The options of type `MPPObjectDetectorOptions` to use for configuring the
- * `MPPImageClassifMPPObjectDetectorier`.
+ * `MPPObjectDetector`.
  * @param error An optional error parameter populated when there is an error in initializing the
  * object detector.
  *
@@ -96,7 +96,7 @@ NS_SWIFT_NAME(ObjectDetector)
  * `MPPImage`. Only use this method when the `MPPObjectDetector` is created with
  * `MPPRunningModeImage`.
  *
- * This method supports classification of RGBA images. If your `MPPImage` has a source type of
+ * This method supports detecting objects in RGBA images. If your `MPPImage` has a source type of
  * `MPPImageSourceTypePixelBuffer` or `MPPImageSourceTypeSampleBuffer`, the underlying pixel buffer
  * must have one of the following pixel format types:
  * 1. kCVPixelFormatType_32BGRA
@@ -109,14 +109,13 @@ NS_SWIFT_NAME(ObjectDetector)
  * @param error An optional error parameter populated when there is an error in performing object
  * detection on the input image.
  *
- * @return An `MPPObjectDetectionResult` object that contains a list of detections, each detection
+ * @return An `MPPObjectDetectorResult` object that contains a list of detections, each detection
  * has a bounding box that is expressed in the unrotated input frame of reference coordinates
  * system, i.e. in `[0,image_width) x [0,image_height)`, which are the dimensions of the underlying
  * image data.
  */
-- (nullable MPPObjectDetectionResult *)detectInImage:(MPPImage *)image
-                                               error:(NSError **)error
-    NS_SWIFT_NAME(detect(image:));
+- (nullable MPPObjectDetectorResult *)detectInImage:(MPPImage *)image
+                                              error:(NSError **)error NS_SWIFT_NAME(detect(image:));
 
 /**
  * Performs object detection on the provided video frame of type `MPPImage` using the whole
@@ -124,7 +123,7 @@ NS_SWIFT_NAME(ObjectDetector)
  * the provided `MPPImage`. Only use this method when the `MPPObjectDetector` is created with
  * `MPPRunningModeVideo`.
  *
- * This method supports classification of RGBA images. If your `MPPImage` has a source type of
+ * This method supports detecting objects in of RGBA images. If your `MPPImage` has a source type of
  * `MPPImageSourceTypePixelBuffer` or `MPPImageSourceTypeSampleBuffer`, the underlying pixel buffer
  * must have one of the following pixel format types:
  * 1. kCVPixelFormatType_32BGRA
@@ -139,14 +138,14 @@ NS_SWIFT_NAME(ObjectDetector)
  * @param error An optional error parameter populated when there is an error in performing object
  * detection on the input image.
  *
- * @return An `MPPObjectDetectionResult` object that contains a list of detections, each detection
+ * @return An `MPPObjectDetectorResult` object that contains a list of detections, each detection
  * has a bounding box that is expressed in the unrotated input frame of reference coordinates
  * system, i.e. in `[0,image_width) x [0,image_height)`, which are the dimensions of the underlying
  * image data.
  */
-- (nullable MPPObjectDetectionResult *)detectInVideoFrame:(MPPImage *)image
-                                  timestampInMilliseconds:(NSInteger)timestampInMilliseconds
-                                                    error:(NSError **)error
+- (nullable MPPObjectDetectorResult *)detectInVideoFrame:(MPPImage *)image
+                                 timestampInMilliseconds:(NSInteger)timestampInMilliseconds
+                                                   error:(NSError **)error
     NS_SWIFT_NAME(detect(videoFrame:timestampInMilliseconds:));
 
 /**
@@ -162,7 +161,7 @@ NS_SWIFT_NAME(ObjectDetector)
  * It's required to provide a timestamp (in milliseconds) to indicate when the input image is sent
  * to the object detector. The input timestamps must be monotonically increasing.
  *
- * This method supports classification of RGBA images. If your `MPPImage` has a source type of
+ * This method supports detecting objects in RGBA images. If your `MPPImage` has a source type of
  * `MPPImageSourceTypePixelBuffer` or `MPPImageSourceTypeSampleBuffer`, the underlying pixel buffer
  * must have one of the following pixel format types:
  * 1. kCVPixelFormatType_32BGRA
@@ -171,8 +170,8 @@ NS_SWIFT_NAME(ObjectDetector)
  * If the input `MPPImage` has a source type of `MPPImageSourceTypeImage` ensure that the color
  * space is RGB with an Alpha channel.
  *
- * If this method is used for classifying live camera frames using `AVFoundation`, ensure that you
- * request `AVCaptureVideoDataOutput` to output frames in `kCMPixelFormat_32RGBA` using its
+ * If this method is used for detecting objects in live camera frames using `AVFoundation`, ensure
+ * that you request `AVCaptureVideoDataOutput` to output frames in `kCMPixelFormat_32RGBA` using its
  * `videoSettings` property.
  *
  * @param image A live stream image data of type `MPPImage` on which object detection is to be

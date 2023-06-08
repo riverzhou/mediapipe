@@ -17,10 +17,13 @@
 #include <vector>
 
 #include "mediapipe/framework/formats/detection.pb.h"
+#include "mediapipe/framework/formats/image.h"
+#include "mediapipe/framework/formats/image_frame.h"
 #include "mediapipe/framework/formats/landmark.pb.h"
 #include "mediapipe/framework/formats/matrix.h"
 #include "mediapipe/framework/formats/rect.pb.h"
 #include "mediapipe/framework/formats/tensor.h"
+#include "mediapipe/gpu/gpu_buffer.h"
 
 namespace mediapipe {
 
@@ -60,4 +63,17 @@ REGISTER_CALCULATOR(BeginLoopUint64tCalculator);
 typedef BeginLoopCalculator<std::vector<Tensor>> BeginLoopTensorCalculator;
 REGISTER_CALCULATOR(BeginLoopTensorCalculator);
 
+// A calculator to process std::vector<mediapipe::ImageFrame>.
+typedef BeginLoopCalculator<std::vector<ImageFrame>>
+    BeginLoopImageFrameCalculator;
+REGISTER_CALCULATOR(BeginLoopImageFrameCalculator);
+
+// A calculator to process std::vector<mediapipe::GpuBuffer>.
+typedef BeginLoopCalculator<std::vector<GpuBuffer>>
+    BeginLoopGpuBufferCalculator;
+REGISTER_CALCULATOR(BeginLoopGpuBufferCalculator);
+
+// A calculator to process std::vector<mediapipe::Image>.
+typedef BeginLoopCalculator<std::vector<Image>> BeginLoopImageCalculator;
+REGISTER_CALCULATOR(BeginLoopImageCalculator);
 }  // namespace mediapipe
