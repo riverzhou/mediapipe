@@ -25,7 +25,7 @@ reboot
 
 su -
 
-cd /usr/lib/nvidia-cuda-toolkit/nvvm
+cd /usr/lib/nvidia-cuda-toolkit
 mkdir nvvm
 cd nvvm
 ln -s ../libdevice
@@ -51,6 +51,7 @@ vim /etc/profile.d/tf-cuda.sh
 export TF_CUDA_PATHS=/usr/include,/usr/include/x86_64-linux-gnu,/usr/lib/x86_64-linux-gnu,/usr/lib/nvidia-cuda-toolkit,/usr/lib/nvidia-cuda-toolkit/bin
 
 git clone https://github.com/riverzhou/mediapipe.git
+cd mediapipe
 git checkout origin/cuda -b cuda
 
 python3 setup.py gen_protos && python3 setup.py bdist_wheel
